@@ -40,12 +40,11 @@ import static com.example.itai.loudcaller.GlobalFunctions.PREFS_NAME;
 import static com.example.itai.loudcaller.GlobalFunctions.SETTINGS_IS_ON;
 import static com.example.itai.loudcaller.GlobalFunctions.SETTINGS_NUMBERS;
 
-    public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     String[] sArrFull;
-    public ArrayList<String> allAddedPhoneNumbers;// = new ArrayList<>();
+    public ArrayList<String> allAddedPhoneNumbers;
     ListView lv1;
     Switch myOnOffSwitch;
-
     EditText inputSearch;
     ArrayAdapter<String> adapter;
     String selectContact;
@@ -128,12 +127,8 @@ import static com.example.itai.loudcaller.GlobalFunctions.SETTINGS_NUMBERS;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /** check if received result code
-         is equal our requested code for draw permission  */
         switch (requestCode) {
             case REQUEST_NOTIFICATION_CHANGE:
-       /* if so check once again if we have permission */
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     NotificationManager notificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -183,10 +178,8 @@ import static com.example.itai.loudcaller.GlobalFunctions.SETTINGS_NUMBERS;
         }
         ArrayList<String> tempString = new ArrayList<>();
         while (phones.moveToNext()) {
-
             //Read Contact Name
             String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-
             //Read Phone Number
             String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             if (name != null) {
@@ -200,11 +193,13 @@ import static com.example.itai.loudcaller.GlobalFunctions.SETTINGS_NUMBERS;
 
         }
         phones.close();
-
         java.util.Collections.sort(tempString);
+        fillContactsInList(tempString);
+    }
 
+
+    private void fillContactsInList(ArrayList<String> tempString) {
         sArrFull = tempString.toArray(new String[tempString.size()]);
-
         //Create Array Adapter and Pass ArrayOfValues to it.
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_2, android.R.id.text1, sArrFull);
         java.util.Collections.sort(tempString);
@@ -212,51 +207,30 @@ import static com.example.itai.loudcaller.GlobalFunctions.SETTINGS_NUMBERS;
         lv1.setAdapter(adapter);
         inputSearch = (EditText) findViewById(R.id.inputSearch);
         inputSearch.addTextChangedListener(new TextWatcher() {
-
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 // When user changed the Text
                 MainActivity.this.adapter.getFilter().filter(cs);
-                //   lv1.setAdapter(MainActivity.this.adapter.getFilter().filter(cs));
             }
-
             @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                          int arg3) {
-                // TODO Auto-generated method stub
-
-            }
-
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
             @Override
-            public void afterTextChanged(Editable arg0) {
-                // TODO Auto-generated method stub
-            }
+            public void afterTextChanged(Editable arg0) {}
         });
-        //Do something on click on ListView Click on Items
         lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                //    ListView l = (ListView) arg0;
-                //   l.
                 Object o = lv1.getItemAtPosition(arg2);
                 selectContact = o.toString();
                 Toast.makeText(getBaseContext(), o.toString(), Toast.LENGTH_SHORT).show();
-                //============================================
-                // Display number of contact on click.
-                //===========================================
-
-                //   iSelectedNum = arg2;
                 String[] vals = selectContact.split(":");
                 String name = vals[0].trim();
                 String num = vals[1].trim();
-                // Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
                 allAddedPhoneNumbers = GlobalFunctions.loadNumbers(MainActivity.this);
-
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
                 builder1.setMessage("Are you sure you wish to add " + name + "'s number " + num + " to your specials?");
                 builder1.setCancelable(true);
-
                 builder1.setPositiveButton(
                         "Yes",
                         new DialogInterface.OnClickListener() {
