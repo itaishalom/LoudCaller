@@ -3,6 +3,7 @@ package com.example.itai.loudcaller;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
@@ -11,13 +12,9 @@ import android.widget.Toast;
  */
 
 public abstract class IncomingCallReceiver extends BroadcastReceiver {
-
-    //The receiver will be recreated whenever android feels like it.  We need a static variable to remember data between instantiations
-
     private static int lastState = TelephonyManager.CALL_STATE_IDLE;
     private static boolean isIncoming;
-    private static String savedNumber;  //because the passed incoming is only valid in ringing
-
+    private static String savedNumber;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -26,15 +23,12 @@ public abstract class IncomingCallReceiver extends BroadcastReceiver {
                 Toast.makeText(context,"Loud caller starting", Toast.LENGTH_SHORT).show();
                 return;
             }
-            //We listen to two intents.  The new outgoing call only tells us of an outgoing call.  We use it to get the number.
             if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL")) {
                 savedNumber = intent.getExtras().getString("android.intent.extra.PHONE_NUMBER");
             } else {
                 String stateStr = intent.getExtras().getString(TelephonyManager.EXTRA_STATE);
                 String number = intent.getExtras().getString(TelephonyManager.EXTRA_INCOMING_NUMBER);
-                if (number != null) {
-                    number = number.replaceAll("[^0-9.]", "");
-                }else{
+                if (number == null){
                     return;
                 }
                 int state = 0;
@@ -53,7 +47,6 @@ public abstract class IncomingCallReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     //Derived classes should override these to respond to specific events of interest
@@ -106,5 +99,4 @@ public abstract class IncomingCallReceiver extends BroadcastReceiver {
         }
         lastState = state;
     }
-
 }
